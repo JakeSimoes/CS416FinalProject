@@ -36,6 +36,7 @@
                 {% for post in posts %}
                     <div class="card d-flex flex-row mb-3 align-items-end post">
                         <p class="fs-3 mb-0 me-2"><span class="fw-bold">{{ post.user }}:</span> <span class="post-text text-break"> {{ post.text_content }}</span></p>
+                        {% if user.is_authenticated %}
                         <form action="{% url 'update_discuss' %}" method="post" class="update-form flex-grow-1" style="display: none;">
                             {% csrf_token %}
                             <textarea rows="1" maxlength="250" class="form-control flex-grow-1 post-text-edit" name="text_content" style="resize: none;">{{ post.text_content }}</textarea>
@@ -49,6 +50,7 @@
                             <input type="hidden" name="post_id" value="{{ post.id }}">
                             <button type="submit" class="btn btn-primary button-delete"><i class="bi bi-trash"></i></button>
                         </form>
+                        {% endif %}
                     </div>
                 {% endfor %}
 
