@@ -1,0 +1,23 @@
+/*I had to do this to get the same resizing behavior as the video.
+  I don't think there is a bootstrap native way to get something like that.*/
+#results-container {
+  width: 100%;
+  @media (min-width: 992px) {
+    width: 70%;
+  }
+}
+
+#main-content {
+    padding-top: 60px;
+}
+
+.form-check-input:checked {
+    background-color: black;
+    border: white 2px solid;
+}
+
+.form-check-input {
+    background-color: white;
+    box-shadow: none !important;
+    border: black 2px solid;
+}

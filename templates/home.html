@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}Ticketmaster Search{% endblock %}
+
+{% load static %}
+{% block css %}
+    <link
+            rel="stylesheet"
+            href="{% static 'ticketmastermaster/ticketmaster.css' %}"
+    />
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid bg-body" id="main-content">
+        {% if toast %}
+            <div class="alert alert-success alert-dismissible fade show w-50 mx-auto" role="alert">
+                Registration was successful!
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endif %}
+        <div class="row justify-content-center">
+            <div class="col-12 text-center">
+                <h1 class="display-1">Ticketmaster</h1>
+                <h1 class="fw-bold">Quickly find tickets around you</h1>
+            </div>
+            <div class="col-lg-6 col-12 gy-5">
+                <form class="form-inline" id="submit">
+                    <div class="input-group">
+                        <input
+                                type="text"
+                                class="form-control mb-3"
+                                list="genres"
+                                id="genre-input"
+                                placeholder="Type to search by genre"
+                                value="{{ genre }}"
+                        />
+                        <datalist id="genres">
+                            <option value="Music"></option>
+                            <option value="Sports"></option>
+                            <option value="Theater"></option>
+                            <option value="Family"></option>
+                            <option value="Arts & Theater"></option>
+                            <option value="Concerts"></option>
+                            <option value="Comedy"></option>
+                            <option value="Dance"></option>
+                        </datalist>
+                        <input
+                                type="text"
+                                class="form-control mb-3"
+                                id="city-input"
+                                placeholder="Enter a city e.g., Hartford"
+                                value="{{ city }}"
+                        />
+                        <button type="submit" class="btn btn-primary mb-3">SEARCH</button>
+                    </div>
+                </form>
+                <div
+                        class="alert alert-danger"
+                        id="alert"
+                        style="display: none"
+                        role="alert"
+                ></div>
+            </div>
+        </div>
+    </div>
+    {% if display %}
+        <div class="container-fluid shadow-lg mt-3" id="results-container">
+            <div class="row m-2 py-4">
+                <h3 class="text-secondary" id="event-count"></h3>
+                <div class="col-12">
+                    <div id="results" class="mt-2">
+                        {% if not events_data %}
+                            <h3>Sorry... No results were found for the entered search term and city.</h3>
+                        {% else %}
+                            <h3>{{ count }} events found</h3>
+                            {% for event in events_data %}
+                                <div class="card mb-3 shadow-lg">
+                                    <div class="row g-0">
+                                        <div class="col-md-3 col-12 d-flex align-items-center justify-content-center">
+                                            <img src="{{ event.img_url }}" class="img-fluid rounded">
+                                        </div>
+                                        <div class="col-md-5 col-6">
+                                            <div class="card-body">
+                                                <h2 class="card-title mb-3">{{ event.name }}</h2>
+                                                <p class="card-text text-secondary fs-4 fw-bold mb-0"><i
+                                                        class="bi bi-geo-alt-fill"></i> {{ event.venue }}</p>
+                                                <p class="card-text fs-5"><small class="text-body-secondary">
+                                                    {{ event.address }}
+                                                    <br> {{ event.city }}, {{ event.state }}</small></p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 col-6 text-end">
+                                            <div class="card-body">
+                                                <h3 class="card-title text-primary-emphasis">{{ event.date }}</h3>
+                                                <h3 class="card-text text-primary-emphasis">{{ event.time }}</h3>
+                                                <a href="{{ event.url }}" target="_blank"
+                                                   class="btn btn-outline-primary"><i
+                                                        class="bi bi-ticket-detailed-fill"></i> Find Tickets</a>
+                                                {% if user.is_authenticated %}
+                                                    <div class="my-2">
+                                                        <form action="{% url 'create_discuss' %}" method="post">
+                                                            {% csrf_token %}
+                                                            {% comment %}
+                                                            Very stupid way to send the data over. I know.
+                                                            {% endcomment %}
+                                                            {% for key, value in event.items %}
+                                                                <input type="hidden" name="{{ key }}" value="{{ value }}">
+                                                            {% endfor %}
+                                                            <button type="submit"
+                                                               class="btn btn-outline-primary">
+                                                                <i class="bi bi-chat-dots"></i>
+                                                                Discuss Event
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    <script src="{% static 'ticketmastermaster/ticketmaster.js' %}"></script>
+{% endblock %}

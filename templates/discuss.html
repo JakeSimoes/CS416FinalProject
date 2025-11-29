@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Discuss {{ event.name }}{% endblock %}
+
+{% load static %}
+{% block css %}
+    <link
+            rel="stylesheet"
+            href="{% static 'ticketmastermaster/discuss.css' %}"
+    />
+{% endblock %}
+
+{% block content %}
+    <div class="container h-100 d-flex align-items-center" id="base-container">
+        <div class="container-fluid shadow-lg mt-3 w-100">
+            <div class="row m-2 py-4 justify-content-center">
+                <div class="card mb-3 shadow-lg">
+                    <div class="row g-0 justify-content-center">
+                        <div class="col-md d-flex align-items-center justify-content-center">
+                            <img src="{{ event.img_url }}" class="img-fluid rounded">
+                        </div>
+                        <div class="col-md">
+                            <div class="card-body">
+                                <h1 class="card-title mb-3 display-1">{{ event.name }}</h1>
+                                <p class="card-text text-secondary fs-1 fw-bold mb-0"><i
+                                        class="bi bi-geo-alt-fill"></i> {{ event.venue }}</p>
+                                <p class="card-text fs-1"><small class="text-body-secondary">
+                                    {{ event.address }}
+                                    <br> {{ event.city }}, {{ event.state }}</small></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <h1>Comments</h1>
+                {% for post in posts %}
+                    <div class="card d-flex flex-row mb-3 align-items-end post">
+                        <p class="fs-3 mb-0 me-2"><span class="fw-bold">{{ post.user }}:</span> <span class="post-text text-break"> {{ post.text_content }}</span></p>
+                        <form action="{% url 'update_discuss' %}" method="post" class="update-form flex-grow-1" style="display: none;">
+                            {% csrf_token %}
+                            <textarea rows="1" maxlength="250" class="form-control flex-grow-1 post-text-edit" name="text_content" style="resize: none;">{{ post.text_content }}</textarea>
+                            <input type="hidden" name="post_id" style="display:none;" value="{{ post.id }}">
+                            <button type="submit" class="btn btn-primary ms-auto me-2 button-update"><i class="bi bi-check-lg"></i></button>
+                            <button type="button" class="btn btn-primary button-cancel"><i class="bi bi-x-lg"></i></button>
+                        </form>
+                        <button class="btn btn-primary ms-auto me-2 button-edit"><i class="bi bi-pencil-square"></i></button>
+                        <form action="{% url 'delete_discuss' %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="post_id" value="{{ post.id }}">
+                            <button type="submit" class="btn btn-primary button-delete"><i class="bi bi-trash"></i></button>
+                        </form>
+                    </div>
+                {% endfor %}
+
+
+                <form action="{{ request.path }}" method="post" class="p-0">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <textarea class="form-control" name="post_text" rows="3"
+                                  placeholder="Leave a comment!"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Post</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="{% static 'ticketmastermaster/discuss.js' %}"></script>
+{% endblock %}

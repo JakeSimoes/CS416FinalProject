@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Login{% endblock %}
+
+{% load static %}
+{% block css %}
+    <link
+            rel="stylesheet"
+            href="{% static 'ticketmastermaster/account.css' %}"
+    />
+{% endblock %}
+
+{% block content %}
+    <div class="container h-100 d-flex align-items-center" id="base-container">
+    <div class="container-fluid shadow-lg mt-3" id="account-container">
+        <div class="row m-2 py-4 justify-content-center">
+            <div class="col-12">
+                <h1>Sign in</h1>
+                {% if feedback %}
+                    <div class="alert alert-danger mt-3" role="alert">
+                      {{ feedback }}
+                    </div>
+                {% endif %}
+                <form action="{% url 'login' %}" method="post">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <button class="btn btn-primary" type="submit">Log in</button>
+                </form>
+            </div>
+        <a href="{% url 'register' %}" class="pt-3">Or register here</a>
+        </div>
+    </div>
+    </div>
+{% endblock %}
