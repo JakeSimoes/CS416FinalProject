@@ -10,14 +10,3 @@
 #main-content {
     padding-top: 60px;
 }
-
-.form-check-input:checked {
-    background-color: black;
-    border: white 2px solid;
-}
-
-.form-check-input {
-    background-color: white;
-    box-shadow: none !important;
-    border: black 2px solid;
-}

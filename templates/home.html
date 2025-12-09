@@ -101,7 +101,7 @@
                                                         <form action="{% url 'create_discuss' %}" method="post">
                                                             {% csrf_token %}
                                                             {% comment %}
-                                                            Very stupid way to send the data over. I know.
+                                                            Very stupid way to send the data over. I know. I'm just lazy.
                                                             {% endcomment %}
                                                             {% for key, value in event.items %}
                                                                 <input type="hidden" name="{{ key }}" value="{{ value }}">

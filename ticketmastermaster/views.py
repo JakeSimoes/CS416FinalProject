@@ -8,7 +8,8 @@ from urllib.parse import urlencode
 from .models import Event, Post
 from .forms import EventForm, PostForm
 import requests
-from datetime import datetime
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 import time
 
 # Create your views here.
@@ -96,7 +97,12 @@ def view_discuss_create(request):
     # Perhaps not the most secure, a user can technically make up any event they want
     if request.method == "POST":
         form = EventForm(request.POST)
-        if form.is_valid() and request.user.is_authenticated:
+        # If a discussion already exists for this event, send them to it
+        existing_events = Event.objects.filter(ticketmaster_id=request.POST.get("ticketmaster_id", None))
+        if existing_events:
+            return redirect("discuss", discussion_id=existing_events[0].id)
+        # Otherwise start a new discussion
+        elif form.is_valid() and request.user.is_authenticated:
             new_event = form.save()
             return redirect("discuss", discussion_id=new_event.id)
 
@@ -149,7 +155,7 @@ def get_event_info(request):
             return [], []
         for event in response["_embedded"]['events']:
             temp_dict = {}
-            temp_dict["img_url"] = event["images"][0]["url"]
+            temp_dict["img_url"] = image_selector(event["images"])["url"]
             temp_dict["name"] = event["name"]
             temp_dict["venue"] = event["_embedded"]["venues"][0]["name"]
             temp_dict["address"] = event["_embedded"]["venues"][0]["address"]["line1"]
@@ -157,16 +163,33 @@ def get_event_info(request):
             temp_dict["state"] = event["_embedded"]["venues"][0]["state"]["name"]
             temp_dict["url"] = event["url"]
             if "dateTime" in event["dates"]["start"]:
-                event_time = datetime.fromisoformat(event["dates"]["start"]["dateTime"]).astimezone()
+                event_time = datetime.fromisoformat(event["dates"]["start"]["dateTime"]).astimezone(ZoneInfo("America/New_York"))
                 temp_dict["datetime"] = event["dates"]["start"]["dateTime"].replace("T", " ").replace("Z", "+00:00")
             else:
                 event_time = datetime.fromtimestamp(time.time())
                 temp_dict["datetime"] = datetime.fromtimestamp(time.time())
             temp_dict["date"] = datetime.strftime(event_time, "%a, %d %b %Y")
             temp_dict["time"] = datetime.strftime(event_time, "%I:%M %p")
+            temp_dict["ticketmaster_id"] = event["id"]
             events.append(temp_dict)
 
         return events, len(response["_embedded"]['events'])
     else:
         return [], 0
+
+
+def image_selector(images):
+    """
+    Selects the highest resolution 16x9 image
+    Args:
+        images (array): An array of ticketmaster image objects
+    """
+    best_image = images[0]
+    for image in images:
+        # The 16x9 aspect ratio fits really well, unless you resize the page ):
+        if image["ratio"] == "16_9":
+            # On second thought, this is probably a waste of bandwidth. Oh well.
+            if image["width"] > best_image["width"]:
+                best_image = image
+    return best_image
 

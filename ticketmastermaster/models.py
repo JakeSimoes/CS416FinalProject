@@ -11,6 +11,7 @@ class Event(models.Model):
     state = models.CharField(max_length=100)
     url = models.CharField(max_length=250)
     datetime = models.DateTimeField(blank=True)
+    ticketmaster_id = models.CharField(max_length=250, null=True)
 
 
 class Post(models.Model):
